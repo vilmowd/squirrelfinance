@@ -9,13 +9,13 @@
     <div class="col-md-6">
         <div class="card p-4 text-center bg-light">
             <h3>Your Balance</h3>
-            <h1 class="text-success">${{ "%.2f"|format(balance) }}</h1>
+            <h1 class="text-success">₪{{ "%.2f"|format(balance) }}</h1>
         </div>
     </div>
     <div class="col-md-6">
         <div class="card p-4 text-center bg-light">
             <h3>Combined Balance</h3>
-            <h1 class="text-primary">${{ "%.2f"|format(total_balance) }}</h1>
+            <h1 class="text-primary">₪{{ "%.2f"|format(total_balance) }}</h1>
         </div>
     </div>
 </div>
@@ -59,7 +59,7 @@
                 <td class="{{ 'text-success' if t['type']=='income' else 'text-danger' }}">
                     {{ t['type']|capitalize }}
                 </td>
-                <td>${{ "%.2f"|format(t['amount']) }}</td>
+                <td>₪{{ "%.2f"|format(t['amount']) }}</td>
                 <td>{{ t['category'] }}</td>
             </tr>
             {% else %}
@@ -158,3 +158,4 @@ new Chart(cctx, {
 </script>
 
 {% endblock %}
+
