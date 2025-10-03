@@ -3,7 +3,7 @@ import sqlite3
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # change this
+app.secret_key = "supersecretkey"  
 
 # --- Hardcoded users ---
 USERS = {
@@ -99,3 +99,4 @@ def logout():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
