@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card p-4 text-center mb-3">
+    <h2>Welcome, {{ user }}</h2>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="card p-4 text-center bg-light">
+            <h3>Your Balance</h3>
+            <h1 class="text-success">${{ "%.2f"|format(balance) }}</h1>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4 text-center bg-light">
+            <h3>Combined Balance</h3>
+            <h1 class="text-primary">${{ "%.2f"|format(total_balance) }}</h1>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-3">
+    <h4>Add Transaction</h4>
+    <form method="POST" class="row g-3">
+        <div class="col-md-4">
+            <input class="form-control" type="number" step="0.01" name="amount" placeholder="Amount" required>
+        </div>
+        <div class="col-md-4">
+            <select class="form-control" name="type">
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <input class="form-control" type="text" name="category" placeholder="Category">
+        </div>
+        <div class="col-12 text-center">
+            <button class="btn btn-success mt-2">Add</button>
+        </div>
+    </form>
+</div>
+
+<div class="card p-4 mb-3">
+    <h4>Your Transactions</h4>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in transactions %}
+            <tr>
+                <td>{{ t['date'] }}</td>
+                <td class="{{ 'text-success' if t['type']=='income' else 'text-danger' }}">
+                    {{ t['type']|capitalize }}
+                </td>
+                <td>${{ "%.2f"|format(t['amount']) }}</td>
+                <td>{{ t['category'] }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">No transactions yet</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card p-4 mb-3">
+    <h4>Finance Graphs</h4>
+    <div class="row">
+        <div class="col-md-6">
+            <canvas id="personalChart" height="200"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="combinedChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<a class="btn btn-danger mt-3" href="{{ url_for('logout') }}">Logout</a>
+
+<script id="server-data" type="application/json">
+{
+  "transactions": {{ transactions|tojson|safe }},
+  "totalIncome": {{ total_income|tojson|safe }},
+  "totalExpenses": {{ total_expenses|tojson|safe }}
+}
+</script>
+
+<script>
+const serverData = JSON.parse(document.getElementById('server-data').textContent);
+const txData = serverData.transactions;
+const totalIncomeVal = serverData.totalIncome;
+const totalExpensesVal = serverData.totalExpenses;
+
+/* --------------- Build personal chart data --------------- */
+const labels = txData.map(t => t.date);
+const personalSeries = [];
+let running = 0;
+txData.forEach(t => {
+    const amt = Number(t.amount) || 0;
+    running += (t.type === 'income') ? amt : -amt;
+    personalSeries.push(Number(running.toFixed(2)));
+});
+
+/* --------------- Personal line chart --------------- */
+const pctx = document.getElementById('personalChart').getContext('2d');
+new Chart(pctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Your running balance',
+            data: personalSeries,
+            borderWidth: 2,
+            tension: 0.25,
+            borderColor: 'green',
+            fill: false
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        },
+        plugins: { legend: { display: true } }
+    }
+});
+
+/* --------------- Combined bar chart (Income vs Expenses) --------------- */
+const cctx = document.getElementById('combinedChart').getContext('2d');
+new Chart(cctx, {
+    type: 'bar',
+    data: {
+        labels: ['Income', 'Expenses'],
+        datasets: [{
+            label: 'All users (aggregate)',
+            data: [Number(totalIncomeVal), Number(totalExpensesVal)],
+            borderWidth: 1,
+            backgroundColor: [
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(255, 99, 132, 0.6)'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: { beginAtZero: true }
+        },
+        plugins: { legend: { display: false } }
+    }
+});
+</script>
+
+{% endblock %}

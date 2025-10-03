@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* Full-page flex layout to center the card */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh; /* almost full viewport height */
+}
+
+.login-card {
+    background: white;
+    padding: 40px 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.login-card h2 {
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.login-card .form-control {
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 15px;
+}
+
+.login-card .btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <h2>Login</h2>
+        <form method="POST">
+            <input class="form-control" type="text" name="username" placeholder="Username" required>
+            <input class="form-control" type="password" name="password" placeholder="Password" required>
+            <button class="btn btn-primary mt-2">Login</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
